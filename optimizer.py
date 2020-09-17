@@ -71,8 +71,8 @@ failedResults = {'Date': [], 'Program': [], 'Person': []}
 
 while True:
     # Select data for one person
-    df = pandas.read_excel('data.xlsx', sheet_name='Input_sheet', nrows=21, skiprows=[] if person == 0 else [
-        i for i in range(1, person*21+1)])
+    df = pandas.read_excel('data.xlsx', sheet_name='Input_sheet', nrows=28, skiprows=[] if person == 0 else [
+        i for i in range(1, person*28+1)])
 
     try:
         personName = df['Person'][0]
@@ -105,13 +105,13 @@ while True:
 
     # Get meal distribution
 
-    afternoonSnack = df['Breakfast'][1]
-    booster1 = df['Breakfast'][4]
-    booster2 = df['Booster2'][7]
-    breakfast = df['Breakfast'][10]
-    dinner = df['Breakfast'][13]
-    lunch = df['Breakfast'][16]
-    morningSnack = df['Breakfast'][19]
+    afternoonSnack = df['Meal Split'][1]
+    booster1 = df['Meal Split'][5]
+    booster2 = df['Meal Split'][9]
+    breakfast = df['Meal Split'][13]
+    dinner = df['Meal Split'][17]
+    lunch = df['Meal Split'][21]
+    morningSnack = df['Meal Split'][25]
 
     # Get meal balances
     mealBalances = df['Meal Balance']
@@ -168,25 +168,25 @@ while True:
     # # MEAL BALANCE
     # afternoon snack
     prob = addMealBalance(prob, 'Afternoon_Snack', mealVars,
-                          0, 1, 2, portionTolerance)
+                          0, 1, 2, 3, portionTolerance)
     # # booster 1
     prob = addMealBalance(prob, 'Booster1', mealVars,
-                          3, 4, 5, portionTolerance)
+                          4, 5, 6, 7, portionTolerance)
     # # booster 2
     prob = addMealBalance(prob, 'Booster2', mealVars,
-                          6, 7, 8, portionTolerance)
+                          8, 9, 10, 11, portionTolerance)
     # # breakfast
     prob = addMealBalance(prob, 'Breakfast', mealVars,
-                          9, 10, 11, portionTolerance)
+                          12, 13, 14, 15, portionTolerance)
     # # dinner
     prob = addMealBalance(prob, 'Dinner', mealVars,
-                          12, 13, 14, portionTolerance)
+                          16, 17, 18, 19, portionTolerance)
     # # lunch
-    prob = addMealBalance(prob, 'Lunch', mealVars, 15,
-                          16, 17, portionTolerance)
+    prob = addMealBalance(prob, 'Lunch', mealVars,
+                          20, 21, 22, 23, portionTolerance)
     # # morning snack
     prob = addMealBalance(prob, 'Morning_Snack', mealVars,
-                          18, 19, 20, portionTolerance)
+                          24, 25, 26, 27, portionTolerance)
     prob.solve()
     status = LpStatus[prob.status]
     print('Status:', status)
