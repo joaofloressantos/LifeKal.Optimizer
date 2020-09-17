@@ -23,19 +23,26 @@ def addMealConstraint(prob, kcal, mealNames, protein, carbs, fat, mealVars, meal
     return prob
 
 
-def addMealBalance(prob, mealName, mealVars, index1, index2, index3, portionTolerance):
+def addMealBalance(prob, mealName, mealVars, index1, index2, index3, index4, portionTolerance):
     prob += mealVars[mealName + '_Green'] >= (-portionTolerance * mealBalances[index1] + mealBalances[index1]) * (
-        mealVars[mealName + '_Green'] + mealVars[mealName + '_Main'] + mealVars[mealName + '_Side'])
+        mealVars[mealName + '_Green'] + mealVars[mealName + '_Main'] + mealVars[mealName + '_Side'] + mealVars[mealName + '_Other'])
     prob += mealVars[mealName + '_Green'] <= (portionTolerance * mealBalances[index1] + mealBalances[index1]) * (
-        mealVars[mealName + '_Green'] + mealVars[mealName + '_Main'] + mealVars[mealName + '_Side'])
+        mealVars[mealName + '_Green'] + mealVars[mealName + '_Main'] + mealVars[mealName + '_Side'] + mealVars[mealName + '_Other'])
+
     prob += mealVars[mealName + '_Main'] >= (-portionTolerance * mealBalances[index2] + mealBalances[index2]) * (
-        mealVars[mealName + '_Green'] + mealVars[mealName + '_Main'] + mealVars[mealName + '_Side'])
+        mealVars[mealName + '_Green'] + mealVars[mealName + '_Main'] + mealVars[mealName + '_Side'] + mealVars[mealName + '_Other'])
     prob += mealVars[mealName + '_Main'] <= (portionTolerance * mealBalances[index2] + mealBalances[index2]) * (
-        mealVars[mealName + '_Green'] + mealVars[mealName + '_Main'] + mealVars[mealName + '_Side'])
+        mealVars[mealName + '_Green'] + mealVars[mealName + '_Main'] + mealVars[mealName + '_Side'] + mealVars[mealName + '_Other'])
+
     prob += mealVars[mealName + '_Side'] >= (-portionTolerance * mealBalances[index3] + mealBalances[index3]) * (
-        mealVars[mealName + '_Green'] + mealVars[mealName + '_Main'] + mealVars[mealName + '_Side'])
+        mealVars[mealName + '_Green'] + mealVars[mealName + '_Main'] + mealVars[mealName + '_Side'] + mealVars[mealName + '_Other'])
     prob += mealVars[mealName + '_Side'] <= (portionTolerance * mealBalances[index3] + mealBalances[index3]) * (
-        mealVars[mealName + '_Green'] + mealVars[mealName + '_Main'] + mealVars[mealName + '_Side'])
+        mealVars[mealName + '_Green'] + mealVars[mealName + '_Main'] + mealVars[mealName + '_Side'] + mealVars[mealName + '_Other'])
+
+    prob += mealVars[mealName + '_Other'] >= (-portionTolerance * mealBalances[index4] + mealBalances[index4]) * (
+        mealVars[mealName + '_Green'] + mealVars[mealName + '_Main'] + mealVars[mealName + '_Side'] + mealVars[mealName + '_Other'])
+    prob += mealVars[mealName + '_Other'] <= (portionTolerance * mealBalances[index4] + mealBalances[index4]) * (
+        mealVars[mealName + '_Green'] + mealVars[mealName + '_Main'] + mealVars[mealName + '_Side'] + mealVars[mealName + '_Other'])
     return prob
 
 
@@ -138,25 +145,25 @@ while True:
     # MEALS
     # afternoon snack
     prob = addMealConstraint(prob, kcal, (
-        'Afternoon_Snack_Main', 'Afternoon_Snack_Green', 'Afternoon_Snack_Side'), protein, carbs, fat, mealVars, afternoonSnack, mealTolerance)
+        'Afternoon_Snack_Main', 'Afternoon_Snack_Green', 'Afternoon_Snack_Side', 'Afternoon_Snack_Other'), protein, carbs, fat, mealVars, afternoonSnack, mealTolerance)
     # # booster 1
     prob = addMealConstraint(prob, kcal, (
-        'Booster1_Main', 'Booster1_Green', 'Booster1_Side'), protein, carbs, fat, mealVars, booster1, mealTolerance)
+        'Booster1_Main', 'Booster1_Green', 'Booster1_Side', 'Booster1_Other'), protein, carbs, fat, mealVars, booster1, mealTolerance)
     # # booster 2
     prob = addMealConstraint(prob, kcal, (
-        'Booster2_Main', 'Booster2_Green', 'Booster2_Side'), protein, carbs, fat, mealVars, booster2, mealTolerance)
+        'Booster2_Main', 'Booster2_Green', 'Booster2_Side', 'Booster2_Other'), protein, carbs, fat, mealVars, booster2, mealTolerance)
     # # breakfast
     prob = addMealConstraint(prob, kcal, (
-        'Breakfast_Main', 'Breakfast_Green', 'Breakfast_Side'), protein, carbs, fat, mealVars, breakfast, mealTolerance)
+        'Breakfast_Main', 'Breakfast_Green', 'Breakfast_Side', 'Breakfast_Other'), protein, carbs, fat, mealVars, breakfast, mealTolerance)
     # # dinner
     prob = addMealConstraint(prob, kcal, (
-        'Dinner_Main', 'Dinner_Green', 'Dinner_Side'), protein, carbs, fat, mealVars, dinner, mealTolerance)
+        'Dinner_Main', 'Dinner_Green', 'Dinner_Side', 'Dinner_Other'), protein, carbs, fat, mealVars, dinner, mealTolerance)
     # # lunch
     prob = addMealConstraint(prob, kcal, (
-        'Lunch_Main', 'Lunch_Green', 'Lunch_Side'), protein, carbs, fat, mealVars, lunch, mealTolerance)
+        'Lunch_Main', 'Lunch_Green', 'Lunch_Side', 'Lunch_Other'), protein, carbs, fat, mealVars, lunch, mealTolerance)
     # # morning snack
     prob = addMealConstraint(prob, kcal, (
-        'Morning_Snack_Main', 'Morning_Snack_Green', 'Morning_Snack_Side'), protein, carbs, fat, mealVars, morningSnack, mealTolerance)
+        'Morning_Snack_Main', 'Morning_Snack_Green', 'Morning_Snack_Side', 'Morning_Snack_Other'), protein, carbs, fat, mealVars, morningSnack, mealTolerance)
 
     # # MEAL BALANCE
     # afternoon snack
