@@ -1,7 +1,7 @@
-from pulp import *
-import pandas
-from openpyxl import load_workbook
 from datetime import datetime
+from openpyxl import load_workbook
+import pandas
+efrom pulp import *
 
 # Aux functions
 startTime = datetime.now()
