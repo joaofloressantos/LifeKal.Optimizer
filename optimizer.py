@@ -72,20 +72,22 @@ print('Df rows: ' + str(len(maindf.index)))
 
 while True:
     attemptStartTime = datetime.datetime.now()
+    tempdf = maindf.copy()
 
     # Select data for one person
     # start = person*
-    df = maindf.iloc[person*28:person*28+28]
+    # print('df = maindf[:][' + str(person*28) +
+    #       ':' + str(person*28+28) + '].copy()')
+    df = tempdf.iloc[person*28: person*28+28]
     # df = pandas.read_excel('data.xlsx', sheet_name='Input_sheet', nrows=28, skiprows=[] if person == 0 else [
     #     i for i in range(1, person*28+1)])
 
     try:
-        print('person: ' + str(person))
-        personName = df['Person'][0]
+        personName = df['Person'][person*28]
         print('Person Name: ' + personName)
-        date = df['Date'][0]
+        date = df['Date'][person*28]
         print('Date: ' + str(date))
-        program = df['Program'][0]
+        program = df['Program'][person*28]
         print('Program: ' + str(program))
     except:
         print('Last meal calculated. Goodbye!')
@@ -103,21 +105,21 @@ while True:
     carbs = dict(zip(meals, df['C']))
 
     # Get kcal target and macro distribution
-    kcal = df['kcal'][0]
+    kcal = df['kcal'][person*28]
     print('kcal target ' + str(kcal))
-    pPerc = df['pPerc'][0]
-    cPerc = df['cPerc'][0]
-    fPerc = df['fPerc'][0]
+    pPerc = df['pPerc'][person*28]
+    cPerc = df['cPerc'][person*28]
+    fPerc = df['fPerc'][person*28]
 
     # Get meal distribution
 
-    afternoonSnack = df['Meal Split'][1]
-    booster1 = df['Meal Split'][5]
-    booster2 = df['Meal Split'][9]
-    breakfast = df['Meal Split'][13]
-    dinner = df['Meal Split'][17]
-    lunch = df['Meal Split'][21]
-    morningSnack = df['Meal Split'][25]
+    afternoonSnack = df['Meal Split'][person*28+1]
+    booster1 = df['Meal Split'][person*28+5]
+    booster2 = df['Meal Split'][person*28+9]
+    breakfast = df['Meal Split'][person*28+13]
+    dinner = df['Meal Split'][person*28+17]
+    lunch = df['Meal Split'][person*28+21]
+    morningSnack = df['Meal Split'][person*28+25]
 
     # Get meal balances
     mealBalances = df['Meal Balance']
@@ -174,25 +176,25 @@ while True:
     # # MEAL BALANCE
     # afternoon snack
     prob = addMealBalance(prob, 'Afternoon_Snack', mealVars,
-                          0, 1, 2, 3, portionTolerance)
+                          person*28+0, person*28+1, person*28+2, person*28+3, portionTolerance)
     # # booster 1
     prob = addMealBalance(prob, 'Booster1', mealVars,
-                          4, 5, 6, 7, portionTolerance)
+                          person*28+4, person*28+5, person*28+6, person*28+7, portionTolerance)
     # # booster 2
     prob = addMealBalance(prob, 'Booster2', mealVars,
-                          8, 9, 10, 11, portionTolerance)
+                          person*28+8, person*28+9, person*28+10, person*28+11, portionTolerance)
     # # breakfast
     prob = addMealBalance(prob, 'Breakfast', mealVars,
-                          12, 13, 14, 15, portionTolerance)
+                          person*28+12, person*28+13, person*28+14, person*28+15, portionTolerance)
     # # dinner
     prob = addMealBalance(prob, 'Dinner', mealVars,
-                          16, 17, 18, 19, portionTolerance)
+                          person*28+16, person*28+17, person*28+18, person*28+19, portionTolerance)
     # # lunch
     prob = addMealBalance(prob, 'Lunch', mealVars,
-                          20, 21, 22, 23, portionTolerance)
+                          person*28+20, person*28+21, person*28+22, person*28+23, portionTolerance)
     # # morning snack
     prob = addMealBalance(prob, 'Morning_Snack', mealVars,
-                          24, 25, 26, 27, portionTolerance)
+                          person*28+24, person*28+25, person*28+26, person*28+27, portionTolerance)
     prob.solve()
     status = LpStatus[prob.status]
     print('Status:', status)
