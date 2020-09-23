@@ -1,10 +1,10 @@
-from pulp import *
+from pulp import LpStatus, LpVariable, LpProblem, LpMinimize, lpSum
+import datetime
 import pandas
 from openpyxl import load_workbook
-from datetime import datetime
 
 # Aux functions
-startTime = datetime.now()
+startTime = datetime.datetime.now()
 
 
 def addMacroConstraint(prob, kcal, mealMacros, mealVars, meals, macroPerc, macroTolerance, isFat):
@@ -52,16 +52,12 @@ person = 0
 # Define base tolerances
 macroTolerance = 0.05  # df['macroTolerance'][0]
 macroToleranceCeiling1 = 0.15  # df['portionTolerance'][0]
-macroToleranceCeiling2 = 0.5  # df['portionTolerance'][0]
-macroToleranceCeiling3 = 0.5  # df['portionTolerance'][0]
+macroToleranceCeiling2 = 0.25  # df['portionTolerance'][0]
 mealTolerance = 0.05  # df['mealTolerance'][0]
 mealToleranceCeiling1 = 0.25  # df['mealTolerance'][0]
 mealToleranceCeiling2 = 0.5  # df['portionTolerance'][0]
-mealToleranceCeiling3 = 0.65  # df['portionTolerance'][0]
 portionTolerance = 0.05  # df['portionTolerance'][0]
-portionToleranceCeiling1 = 0.25  # df['portionTolerance'][0]
-portionToleranceCeiling2 = 0.5  # df['portionTolerance'][0]
-portionToleranceCeiling3 = 0.65  # df['portionTolerance'][0]
+portionToleranceCeiling1 = 0.65  # df['portionTolerance'][0]
 
 # Init results object
 results = {'Date': [], 'Program': [], 'Meals': [], 'MealValues': [], 'Person': [],
@@ -69,12 +65,22 @@ results = {'Date': [], 'Program': [], 'Meals': [], 'MealValues': [], 'Person': [
 # Init failed results object
 failedResults = {'Date': [], 'Program': [], 'Person': []}
 
+maindf = pandas.read_excel('data.xlsx', sheet_name='Input_sheet')
+
+print('Df rows: ' + str(len(maindf.index)))
+# print(maindf)
+
 while True:
+    attemptStartTime = datetime.datetime.now()
+
     # Select data for one person
-    df = pandas.read_excel('data.xlsx', sheet_name='Input_sheet', nrows=28, skiprows=[] if person == 0 else [
-        i for i in range(1, person*28+1)])
+    # start = person*
+    df = maindf.iloc[person*28:person*28+28]
+    # df = pandas.read_excel('data.xlsx', sheet_name='Input_sheet', nrows=28, skiprows=[] if person == 0 else [
+    #     i for i in range(1, person*28+1)])
 
     try:
+        print('person: ' + str(person))
         personName = df['Person'][0]
         print('Person Name: ' + personName)
         date = df['Date'][0]
@@ -195,7 +201,6 @@ while True:
         'Meal_', ''): v.varValue for v in prob.variables()}
     kcalTotal = sum([(protein[f] * 4 + carbs[f] * 4 + fat[f] * 9)
                      * resultDict[f] for f in meals])
-    print('Total KCAL = ' + str(kcalTotal))
 
     if status == 'Optimal':
         for v in prob.variables():
@@ -214,8 +219,6 @@ while True:
         print('###########################')
         print('#########success###########')
         print('###########################')
-        person += 10000
-        print(prob)
     else:
         print('Failed with these tolerances, trying again...')
         person -= 1
@@ -225,17 +228,9 @@ while True:
             mealTolerance = round(mealTolerance + 0.05, 3)
         elif macroTolerance < macroToleranceCeiling1:
             macroTolerance = round(macroTolerance + 0.05, 3)
-        elif portionTolerance < portionToleranceCeiling2:
-            portionTolerance = round(portionTolerance + 0.05, 3)
         elif mealTolerance < mealToleranceCeiling2:
             mealTolerance = round(mealTolerance + 0.05, 3)
         elif macroTolerance < macroToleranceCeiling2:
-            macroTolerance = round(macroTolerance + 0.05, 3)
-        elif portionTolerance < portionToleranceCeiling3:
-            portionTolerance = round(portionTolerance + 0.05, 3)
-        elif mealTolerance < mealToleranceCeiling3:
-            mealTolerance = round(mealTolerance + 0.05, 3)
-        elif macroTolerance < macroToleranceCeiling3:
             macroTolerance = round(macroTolerance + 0.05, 3)
         else:
             failedResults['Date'].append(str(date))
@@ -247,22 +242,30 @@ while True:
             print('###########################')
 
     person += 1
+    attemptTime = datetime.datetime.now() - attemptStartTime
+    print('Attempt run time (s): ' +
+          str(attemptTime.total_seconds()))
 
-
-odf = pandas.DataFrame(results, columns=[
+#
+outputDataFrame = pandas.DataFrame(results, columns=[
     'Date', 'Program', 'Meals', 'MealValues', 'Person', 'macroTolerance', 'mealTolerance', 'portionTolerance'])
 
-frdf = pandas.DataFrame(failedResults, columns=['Date', 'Program', 'Person'])
+failedResultsDataFrame = pandas.DataFrame(
+    failedResults, columns=['Date', 'Program', 'Person'])
 
 book = load_workbook('data.xlsx')
 # https://github.com/PyCQA/pylint/issues/3060
 writer = pandas.ExcelWriter(  # pylint: disable=abstract-class-instantiated
-    'data.xlsx')
+    'data.xlsx', engine='openpyxl')
 writer.book = book
-odf.to_excel(writer, sheet_name='Output_sheet')
-frdf.to_excel(writer, sheet_name='Failed_sheet')
+
+outputDataFrame.to_excel(writer, sheet_name='Output_sheet')
+failedResultsDataFrame.to_excel(writer, sheet_name='Failed_sheet')
+
 writer.save()
 writer.close()
 
+endTime = datetime.datetime.now()
+totalRuntime = endTime - startTime
 
-print('Run time: ' + str(datetime.now() - startTime))
+print('Run time: ' + str(totalRuntime.total_seconds()))
